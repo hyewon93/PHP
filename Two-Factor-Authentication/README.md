@@ -1,14 +1,14 @@
-# Complete User Login & Registration system using PHP and MySQL database
+# Two-Factor Authentication in PHP
 
-version: 1.0.0
+## What is Two-Factor-Authentication?
+Two-Factor Authentication provides an additional layer of security by requiring a verification code whenever user sign in.
 
-###UserName : elias
-###Password : 123
+Passwords can get stolen, especially if user uses the same one for multiple sites. Two-Factor Authentication provides user with an extra layer of security so that user's account will remain secure even if user's password is compromised.
 
-## Full Tutorial
+## Full URL
 
-[On Youtube](https://youtu.be/QxZxHUf7c_0)
+http://localhost/Two-Factor-Authentication/
 
-## Authors
+## DB Setting
 
-[Elias Abdurrahman](https://github.com/codingWithElias)
+/Two-Factor-Authentication/db/test_db.sql
