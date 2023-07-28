@@ -6,6 +6,7 @@
         public $email;
         public $name;
         public $password;
+        public $twoFactorAuthKey;
 
         function __construct($options = []) {
             parent::__construct();
@@ -100,13 +101,41 @@
             $row = mysqli_fetch_assoc($result);
 
             if(!empty($row)) {
-                $this->id       = $row['id'];
-                $this->email    = $row['email'];
-                $this->name     = $row['name'];
-                $this->password = $row['password'];
+                $this->id               = $row['id'];
+                $this->email            = $row['email'];
+                $this->name             = $row['name'];
+                $this->password         = $row['password'];
+                $this->twoFactorAuthKey = $row['twoFactorAuthKey'];
             }
 
             return $this;
+        }
+
+        function save($formdata) {
+
+            // Clean up submitted data.
+            foreach($formdata as $key => $row) {
+                $formdata[$key] = trim(strip_tags($row));
+            }
+
+            if(!$this->errors) {
+
+                $sql = "
+                    UPDATE users
+                    SET 
+                        twoFactorAuthKey = '" . $formdata['twoFactorAuthKey'] . "'
+                    WHERE 
+                        id = " . $this->id . "
+                ";
+
+                if($this->db->query($sql)) {
+
+                    $this->loadFromDB($this->db->insertID);
+
+                } else {
+                    $this->error("There was an error saving your data (USER-SAV-1).");
+                }
+            }
         }
     }
 ?>

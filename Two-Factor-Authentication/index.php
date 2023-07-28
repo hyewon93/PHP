@@ -7,6 +7,7 @@
 <body>
      <form action="./public_html/function.php" method="post">
 		<input type="hidden" name="f" value="login" />
+		<input type="hidden" name="type" value="email" />
 
      	<h2>LOGIN</h2>
 
