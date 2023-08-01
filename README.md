@@ -7,3 +7,7 @@ This project is about Two-Factor Authentication (2FA) setting. In this project, 
 ## Finale Inventory Integration
 
 This integration is for getting inventory information from Finale Inventory.
+
+## ReCharge Integration
+
+This integration is for communicating with ReCharge API by using REST API.
