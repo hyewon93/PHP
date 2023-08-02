@@ -11,3 +11,7 @@ This integration is for getting inventory information from Finale Inventory.
 ## ReCharge Integration
 
 This integration is for communicating with ReCharge API by using REST API.
+
+## Stripe Payment Intent API
+
+Payment Intent API enables to build an integration that can handle complex payment flows. It tracks a payment from creation through checkout, and triggers additional authentication steps when required (3D Secure). 
