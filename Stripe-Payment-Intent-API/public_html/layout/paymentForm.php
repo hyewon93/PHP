@@ -13,36 +13,36 @@
                     <div class="container">
                         <div class="row form-group">
                             <label for="name" class="form-label mt-4">Name</label>
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Name" autocomplete="off">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Name" autocomplete="off" required>
                         </div>
                         <div class="row form-group">
                             <label for="email" class="form-label mt-4">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" autocomplete="off">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" autocomplete="off" required>
                         </div>
                         <div class="row form-group">
                             <label for="address" class="form-label mt-4">Address</label>
-                            <input type="text" class="form-control" id="address" name="address" placeholder="Address" autocomplete="off">
+                            <input type="text" class="form-control" id="address" name="address" placeholder="Address" autocomplete="off" required>
                         </div>
                         <div class="row form-group">
                             <label for="city" class="form-label mt-4">City</label>
-                            <input type="text" class="form-control" id="city" name="city" placeholder="City" autocomplete="off">
+                            <input type="text" class="form-control" id="city" name="city" placeholder="City" autocomplete="off" required>
                         </div>
                         <div class="row">
                             <dis class="col form-group">
                                 <label for="country" class="form-label mt-4">Country</label>
-                                <select class="form-select" id="country" name="country">
+                                <select class="form-select" id="country" name="country" required>
                                     <option value="CA">Country</option>
                                 </select>
                             </dis>
                             <dis class="col form-group">
                                 <label for="province" class="form-label mt-4">State / Province</label>
-                                <select class="form-select" id="province" name="province">
+                                <select class="form-select" id="province" name="province" required>
                                     <option value="BC">British Columbia</option>
                                 </select>
                             </dis>
                             <dis class="col form-group">
                                 <label for="postalCode" class="form-label mt-4">Zip / Postal Code</label>
-                                <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="Zip / Postal Code" autocomplete="off">
+                                <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="Zip / Postal Code" autocomplete="off" required>
                             </dis>
                         </div>
                         <div class="row payment-error-container" id="payment-error-container" style="display:none;">
@@ -69,46 +69,38 @@
                             </div>
                         </div>
                         <div class="row">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button id="submit-button" type="submit" class="btn btn-primary submit-button">
+                                <span class="submit-button-text">Submit</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </form>
+    <form id="completedForm" onsubmit="location.replace(location.href); return false;" style="display: none;">
+        <div class="completed-form">
+            <div class="bs-component">
+                <div class="alert alert-dismissible alert-success">
+                    <strong>Your order was successful!</strong><br/> 
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Go back to checkout</button>
+        </div>
+    </form>
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         var paymentForm = new Object();
-        var stripeKey = "pk_test_51NW1czAgQo6v5Vl63ElXnrRxBiGspcLCR2Bba4FZX1EC0bDqL18w1XN9kiy7DiiCrzUFUZ6MZ0mx1xEcOiaOfapy00XMKQvFtH";
-        var stripe = Stripe(stripeKey);
-        var card, token, clientSecret = "";
+        var stripePublicKey = "pk_test_51NW1czAgQo6v5Vl63ElXnrRxBiGspcLCR2Bba4FZX1EC0bDqL18w1XN9kiy7DiiCrzUFUZ6MZ0mx1xEcOiaOfapy00XMKQvFtH";
+        var stripe = Stripe(stripePublicKey);
+        var card = "";
 
         paymentForm.__construct = function() {
             paymentForm.__init();
         }
 
         paymentForm.__init = function() {
-/*
-            // Create Payment Intent
-            var request = {
-                "f": "createPaymentIntent",
-            }
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', "./function.php", true);
-            xhr.setRequestHeader('Content-type', 'application/json');
-            xhr.responseType = "json";
-            xhr.send(JSON.stringify(request));
-
-            xhr.onload = function () {
-                console.log(xhr.response);
-
-                if(xhr.response.status == "OK") {
-                    token = xhr.response.data.token;
-                    clientSecret = xhr.response.data.client_secret;
-                }
-            }
-            */
 
             // Import Stripe Card
             var elements = stripe.elements();
@@ -127,9 +119,24 @@
             card.mount("#card-element");
         }
 
+        paymentForm.loading = function(isLoading) {
+            if(isLoading) {
+                document.querySelector('#submit-button').disabled = true;
+                document.querySelector('#submit-button').classList.add('button-loading');
+                document.querySelector('.submit-button-text').textContent = "";
+            } else {
+                document.querySelector('#submit-button').disabled = false;
+                document.querySelector('#submit-button').classList.remove('button-loading');
+                document.querySelector('.submit-button-text').textContent = "Submit";
+            }
+            
+        }
+
         paymentForm.submit = async function() {
             
             // TODO: form validation
+
+            paymentForm.loading(true);
 
             const {error, paymentMethod} = await stripe.createPaymentMethod({
                 type: 'card',
@@ -143,6 +150,8 @@
                 errorEl.textContent = error.message;
 
                 document.querySelector('#payment-error-container').style.display = "block";
+
+                paymentForm.loading(false);
 
             } else {
 
@@ -165,8 +174,70 @@
                 xhr.responseType = "json";
                 xhr.send(JSON.stringify(request));
 
-                xhr.onload = function () {
-                    console.log(xhr.response);
+                xhr.onload = async function () {
+
+                    if(xhr.response.status == "OK") {
+
+                        document.querySelector("#checkoutForm").style.display = "none";
+                        document.querySelector("#completedForm").style.display = "block";
+
+                    } else if(xhr.response.status == "required_action") {
+
+                        const handleCardAction = await stripe.handleCardAction(xhr.response.data.client_secret);
+
+                        if(handleCardAction.error) {
+                            let errorEl = document.querySelector('#payment-error');
+                            errorEl.textContent = '';
+
+                            errorEl.textContent = handleCardAction.error.message;
+
+                            document.querySelector('#payment-error-container').style.display = "block";
+
+                            paymentForm.loading(false);
+
+                        } else {
+
+                            var request = {
+                                "f": "confirm3DSecure",
+                                "paymentIntentID" : xhr.response.data.paymentIntentID
+                            };
+
+                            var xhr2 = new XMLHttpRequest();
+                            xhr2.open('POST', "./function.php", true);
+                            xhr2.setRequestHeader('Content-type', 'application/json');
+                            xhr2.responseType = "json";
+                            xhr2.send(JSON.stringify(request));
+
+                            xhr2.onload = function () {
+                                
+                                if(xhr2.response.status == "OK") {
+
+                                    document.querySelector("#checkoutForm").style.display = "none";
+                                    document.querySelector("#completedForm").style.display = "block";
+
+                                } else {
+                                    let errorEl = document.querySelector('#payment-error');
+                                    errorEl.textContent = '';
+
+                                    errorEl.textContent = xhr.response.message;
+
+                                    document.querySelector('#payment-error-container').style.display = "block";
+
+                                    paymentForm.loading(false);
+                                }
+                            }
+                        }
+
+                    } else {
+                        let errorEl = document.querySelector('#payment-error');
+                        errorEl.textContent = '';
+
+                        errorEl.textContent = xhr.response.message;
+
+                        document.querySelector('#payment-error-container').style.display = "block";
+
+                        paymentForm.loading(false);
+                    }
                 }
             }
         }

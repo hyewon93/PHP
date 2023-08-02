@@ -6,6 +6,7 @@ class paymentGateway {
 
     private $apiKey;
     public $next_action;
+    public $client_secret;
     public $paymentMethodType;
     public $paymentIntentID;
 
@@ -74,6 +75,7 @@ class paymentGateway {
             ]);
 
             $this->paymentIntentID = $paymentIntent->id;
+            $this->client_secret = $paymentIntent->client_secret;
 
         } catch(Exception $e) {
             throw $e;
@@ -95,9 +97,18 @@ class paymentGateway {
             );
 
             // Confirm charge
-            $charge = $stripe->paymentIntents->confirm(
-                $paymentIntent->id
-            );
+            if(isset($formdata['off_session']) && $formdata['off_session']) {
+                $charge = $stripe->paymentIntents->confirm(
+                    $paymentIntent->id,
+                    [
+                        'off_session' => true
+                    ]
+                );
+            } else {
+                $charge = $stripe->paymentIntents->confirm(
+                    $paymentIntent->id
+                );
+            }
 
             if(!empty($charge->next_action)) {
                 $this->next_action = $charge->next_action;
@@ -108,6 +119,25 @@ class paymentGateway {
             throw $e;
         }
         
+        return $this;
+    }
+    
+    public function updatePaymentIntent($formdata) {
+
+        try {
+
+            $stripe = new \Stripe\StripeClient($this->apiKey);
+            $stripe->paymentIntents->update(
+                $formdata['paymentIntentID'],
+                [
+                    'setup_future_usage' => 'off_session'
+                ]
+            );
+
+        } catch(Exception $e) {
+            throw $e;
+        }
+
         return $this;
     }
 }

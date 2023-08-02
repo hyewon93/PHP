@@ -9,7 +9,29 @@
     }
 
     if(!empty($_REQUEST['f'])) {
-        if($_REQUEST['f'] == "submitForm") {
+        if($_REQUEST['f'] == "confirm3DSecure") {
+
+            $data = [];
+            $errorMessage = "";
+
+            try {
+                $paymentGateway = new paymentGateway();
+
+                // Take a payment
+                $_REQUEST['off_session'] = true;
+                $paymentGateway->takePayment($_REQUEST);
+
+            } catch(Exception $e) {
+                $errorMessage = $e->getMessage();
+            }
+
+            $output = array(
+                "status" => ((empty($errorMessage)) ? "OK" : "Error"),
+                "messages" => $errorMessage,
+                "data" => $data
+            );
+
+        } elseif($_REQUEST['f'] == "submitForm") {
 
             $data = [];
             $errorMessage = "";
@@ -25,7 +47,8 @@
                 // Create Payment Intent
                 $paymentGateway->createPaymentIntent($_REQUEST);
                 $_REQUEST['paymentIntentID'] = $paymentGateway->paymentIntentID;
-                $data['next_action'] = $paymentGateway->paymentIntentID;
+                $data['client_secret'] = $paymentGateway->client_secret;
+                $data['paymentIntentID'] = $paymentGateway->paymentIntentID;
 
                 // Add Payment Method
                 $paymentGateway->addCard($_REQUEST);
@@ -38,11 +61,9 @@
             } catch(Exception $e) {
                 $errorMessage = $e->getMessage();
             }
-            
-            //$paymentGateway->takePayment($_REQUEST);
 
             $output = array(
-                "status" => (empty($errorMessage)) ? "OK" : "Error",
+                "status" => ((!empty($data['next_action'])) ? "required_action" : ((empty($errorMessage)) ? "OK" : "Error")),
                 "messages" => $errorMessage,
                 "data" => $data
             );
