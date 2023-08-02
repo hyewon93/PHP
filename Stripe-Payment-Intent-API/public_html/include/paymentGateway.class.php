@@ -12,8 +12,7 @@ class paymentGateway {
 
     public function __construct() {
 
-        $this->apiKey = "sk_test_51NW1czAgQo6v5Vl6qoxlaakhMbyZ2Ny11JKPZOV1YXRSP7EN4N3wj3bVKAfQCrg6aDryZJu3NRgQrKkqYBwY5NOI00UnbbIcHb";
-        
+        $this->apiKey = "%% Your Stripe Secret Key %%";
     }
 
     public function addCard($formdata) {

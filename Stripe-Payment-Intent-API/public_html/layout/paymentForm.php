@@ -92,7 +92,7 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         var paymentForm = new Object();
-        var stripePublicKey = "pk_test_51NW1czAgQo6v5Vl63ElXnrRxBiGspcLCR2Bba4FZX1EC0bDqL18w1XN9kiy7DiiCrzUFUZ6MZ0mx1xEcOiaOfapy00XMKQvFtH";
+        var stripePublicKey = "%% Your Stripe Public Key %%";
         var stripe = Stripe(stripePublicKey);
         var card = "";
 
